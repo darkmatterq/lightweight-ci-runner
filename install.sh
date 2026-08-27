@@ -14,6 +14,7 @@ if ! docker info >/dev/null 2>&1
 then 
     echo "Docker error or not turn"
 fi
+make venv
 make install-deps
 make build
 for file in scripts/pre-push scripts/deploy.sh scripts/cleanup.sh bin/ci-monitor

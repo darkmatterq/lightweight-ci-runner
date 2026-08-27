@@ -18,7 +18,7 @@ test:
   timeout: 60
   commands:
     - pip install pytest
-    - pytest sample-app/test_app.py
+    - pytest -o cache_dir=/tmp/.pytest_cache sample-app/test_app.py
 build:
   stage: build
   image: docker:cli

@@ -1,7 +1,6 @@
 #include<iostream>
 #include<fstream>
 #include<string>
-#include<sstream>
 #include<filesystem>
 #include<chrono>
 #include<thread>
@@ -54,7 +53,7 @@ uint64_t get_cpu_usec(const std::string& cgroup_path){
 }
 
 std::atomic<bool> keep_running(true);
-void handle_signal(int signal){
+void handle_signal(int /*signal*/){
     keep_running=false;
 }
 int main(int argc, char* argv[]){

@@ -24,7 +24,8 @@ def parse_pipeline_config(config_path):
 
         if "commands" not in stage_data or not (
                 isinstance(stage_data["commands"], list)):
-            raise ValueError(f"Stage '{stage_name}' is missing 'image' field.")
+            raise ValueError(f"Stage '{stage_name}'\
+                             is missing 'commands' field.")
         if "timeout" not in stage_data:
             stage_data["timeout"] = 60
     return data

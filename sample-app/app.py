@@ -50,5 +50,3 @@ if __name__ == "__main__":
             print(f"'{mail}' ---> Correct✅\n")
         else:
             print(f"'{mail}' ---> Incorrect❌\n")
-
-

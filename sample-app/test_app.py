@@ -1,8 +1,7 @@
-import pytest
+from app import is_even, is_prime, format_email
 import os
 import sys
 sys.path.insert(0, os.path.dirname(__file__))
-from app import is_even, is_prime, format_email
 
 # --- 1. HAPPY CASES
 
@@ -26,7 +25,7 @@ def test_format_email_happy_case():
     assert format_email("le.dinh.quan@uit.edu.vn") is True
 
 
-# --- 2. EDGE CASES & ERROR HANDLING 
+# --- 2. EDGE CASES & ERROR HANDLING
 
 def test_is_prime_edge_cases():
     """Test prime function with edge values like 0, 1, or negative numbers."""
@@ -37,6 +36,6 @@ def test_is_prime_edge_cases():
 
 def test_format_email_edge_cases():
     """Test email validation with incorrect or messy formats."""
-    assert format_email("quan@gmail") is False          # Missing domain extension
-    assert format_email("le dinh quan@uit.edu.vn") is False  # Contains spaces
-    assert format_email("kdq#2006@yahoo.com") is False      # Contains invalid character '#'
+    assert format_email("quan@gmail") is False
+    assert format_email("le dinh quan@uit.edu.vn") is False
+    assert format_email("kdq#2006@yahoo.com") is False

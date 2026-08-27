@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import docker
 from parser import parse_pipeline_config
 
@@ -19,8 +18,8 @@ class CIRunner:
             sys.exit(1)
 
     def run_stage(self, stage_name, stage_config):
-        self. stage_name = stage_name
-        self. stage_config = stage_config
+        self.stage_name = stage_name
+        self.stage_config = stage_config
         cmd_str = " && " .join(stage_config['commands'])
         entry_command = f"sh -c 'set -e && {cmd_str}'"
         volumes = {
@@ -43,6 +42,7 @@ class CIRunner:
                 command=entry_command,
                 working_dir='/workspace',
                 volumes=volumes,
+                network_mode='host',
                 detach=True
             )
             container.start()
@@ -68,14 +68,16 @@ class CIRunner:
         print(f"Running Pipeline:{config['name']}")
         for stage_name in config['stages']:
             print(
-                f"\n==================[STAGE:{stage_name}]=====================")
+                f"\n==================[STAGE:{stage_name}]"
+                "====================="
+            )
             success = self.run_stage(stage_name, config[stage_name])
             if not success:
                 print(f"\n Pipeline FAILED at stage [{stage_name}]!")
                 return False
 
             print(f"Stage[{stage_name}] PASSED.")
-        print(f"\n ALL STAGES PASSED! Pipeline completed successfully.")
+        print("\n ALL STAGES PASSED! Pipeline completed successfully.")
         return True
 
 
