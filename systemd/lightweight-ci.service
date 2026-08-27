@@ -1,0 +1,18 @@
+[Unit]
+Description=Lightweight GitOps CI/CD Runner Engine
+After=network.target docker.service
+Requires=docker.service
+[Service]
+Type=simple
+User={{USER}}
+WorkingDirectory={{PROJECT_DIR}}
+ExecStart={{PYTHON_PATH}} src/engine.py sample-app/.ci-pipeline.yaml
+Restart=always
+RestartSec=5s
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

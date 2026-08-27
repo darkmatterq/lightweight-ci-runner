@@ -14,7 +14,7 @@ docker run -d \
     --restart unless-stopped \
     ${IMAGE_NAME}
 sleep 2
-if [ "$(docker inspect -f '{{.State.Running}}'${APP_NAME})" = "true" ]
+if [ "$(docker inspect -f '{{.State.Running}}' "${APP_NAME}")" = "true" ]
 then
     echo "Deployment SUCCESSFUL! Container ${APP_NAME} is healthy and running."
     exit 0
