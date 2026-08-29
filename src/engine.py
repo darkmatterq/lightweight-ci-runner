@@ -1,7 +1,8 @@
+from parser import parse_pipeline_config
 import os
 import sys
 import docker
-from parser import parse_pipeline_config
+import subprocess
 
 
 class CIRunner:
@@ -46,11 +47,25 @@ class CIRunner:
                 detach=True
             )
             container.start()
+            monitor_bin = os.path.join(self.workspace_dir, "bin", "ci-monitor")
+            monitor_proc = None
+            if os.path.exists(monitor_bin):
+                try:
+                    monitor_proc = subprocess.Popen(
+                        [monitor_bin, container.id, "500"])
+                except Exception as me:
+                    print(f"Warning: Could not start C++ monitor: {me}")
             for chunk in container.logs(
                     stream=True, follow=True, stdout=True, stderr=True):
                 print(chunk.decode('utf-8', errors='replace'), end='')
             timeout_val = stage_config.get('timeout', 60)
             result = container.wait(timeout=timeout_val)
+            if monitor_proc and monitor_proc.poll() is None:
+                try:
+                    monitor_proc.terminate()
+                    monitor_proc.wait(timeout=2)
+                except Exception:
+                    monitor_proc.kill()
             exit_code = result.get('StatusCode', 1)
             return exit_code == 0
         except Exception as e:
