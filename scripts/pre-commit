@@ -1,0 +1,44 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "==================================================="
+echo "[PRE-COMMIT] Running fast local quality checks..."
+echo "==================================================="
+FLAKE8_BIN="flake8"
+if [ -f ".venv/bin/flake8" ]
+then
+    FLAKE8_BIN=".venv/bin/flake8"
+fi
+
+echo "Checking Python code style with flake8..."
+if ! $FLAKE8_BIN src/ sample-app/
+then
+    echo "[PRE-COMMIT] Code style errors found! Please fix them before commiting." 
+    exit 1
+fi
+
+echo "Code style clean!"
+
+PYTHON_BIN="python3"
+if [ -f ".venv/bin/python3" ]
+then
+    PYTHON_BIN=".venv/bin/python3"
+fi
+
+echo "Checking Yaml code style..."
+if ! $PYTHON_BIN src/parser.py >/dev/null 2>&1 
+then 
+    echo "[PRE-COMMIT] Invalid YAML configuration in sample-app/.ci-pipeline.yaml!"
+    exit 1
+fi
+echo "Pipeline YAML valid!"
+
+echo "============================================================"
+echo "[PRE-COMMIT] All checks passed! Proceeding to message check."
+echo "============================================================"
+exit 0
+
+
+        
+
+

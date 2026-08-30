@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(head -n 1 "$COMMIT_MSG_FILE")
+
+PATTERN="^(feat|fix|docs|style|refactor|test|chore|ci)(\(.*\))?: .+"
+
+if ! [[ "$COMMIT_MSG" =~ $PATTERN ]]
+then 
+    echo "============================================"
+    echo "[COMMIT_MSG] Invalid commit message format!"
+    echo "--------------------------------------------"
+    echo "Your message: '$COMMIT_MSG'"
+    echo "Format must follow: <type>: <description>"
+    echo "Valid types: feat, fix, docs, style, refactor, test, chore, ci"
+    echo "Example: git commit -m 'feat: add git hooks automation'"
+    echo "============================================================="
+    exit 1
+fi
+    echo "[COMMIT-MSG] Commit message follows Conventional Commits standard!"
+    exit 0 
+
+
+
+

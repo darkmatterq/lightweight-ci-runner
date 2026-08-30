@@ -17,7 +17,7 @@ fi
 make venv
 make install-deps
 make build
-for file in scripts/pre-push scripts/deploy.sh scripts/cleanup.sh bin/ci-monitor
+for file in scripts/pre-push scripts/pre-commit scripts/commit-msg scripts/deploy.sh scripts/cleanup.sh bin/ci-monitor 
 do
     chmod +x $file
     echo "$file has permission"
@@ -25,7 +25,11 @@ done
 if [ -d ".git" ]
 then
     cp scripts/pre-push .git/hooks/pre-push
+    cp scripts/pre-commit .git/hooks/pre-commit
+    cp scripts/commit-msg .git/hooks/commit-msg
     chmod +x .git/hooks/pre-push
+    chmod +x .git/hooks/pre-commit
+    chmod +x .git/hooks/commit-msg
 fi
     PROJECT_DIR=$(pwd)
     CURRENT_USER=$(whoami)
