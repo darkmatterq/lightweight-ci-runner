@@ -2,12 +2,11 @@
 set -euo pipefail
 echo "Cleaning up dangling images and stopped containers"
 
-docker container prune -f 
+docker container prune -f >/dev/null 2>&1 ||true
 
-docker image prune -f 
+docker image prune -f >dev/null 2>&1 ||true
 
-rm -rf .pytest_cache/ sample-app/.pytest_cache/
 
-echo "[CLEANUP] Cleanup completed successfully"
+echo "[CLEANUP] Docker resources cleaned successfully"
 
 

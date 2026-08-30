@@ -6,18 +6,21 @@ PIP = $(VENV_DIR)/bin/pip
 SRC_DIR = src
 BIN_DIR = bin
 
-.PHONY: build test clean lint install-deps venv help
+.PHONY: all help venv install-deps build test lint run clean clean-docker clean-all
 
 help:
-	@echo "help: show this help message"
-	@echo ".PHONY: all build test clean lint install-deps help"
-	@echo "venv: install virtual environment"
-	@echo "install-deps: install all packages in requirements.txt"
-	@echo "build: compile C++ performance monitor binary"
-	@echo "lint: check python code style and formatting"
-	@echo "test: run all unit tests using pytest"
-	@echo "clean: remove build artifacts and cache files"
-	
+	@echo "Lightweight CI Runner - Makefile Commands:"
+	@echo "make venv             - Create Python virtual environment"
+	@echo "make install-deps     - Install dependencies from requirements.txt"
+	@echo "make build            - Compile C++ performance monitor binary"
+	@echo "make test             - Run unit tests using pytest"
+	@echo "make lint             - Check Python code style (flake8)"
+	@echo "make run              - Run full CI/CD pipeline end-to-end"
+	@echo "make clean            - Clean all binary builds and Python bytecode/cache"
+	@echo "make clean-docker     - Clean dangling Docker containers and images"
+	@echo "make clean-all        - Deep clean everything including .venv"
+
+
 venv:
 	@if [ ! -d "$(VENV_DIR)" ]; then \
 	echo "Creating isolated Python virtual environment (.venv)..."; \
@@ -32,6 +35,24 @@ lint: venv
 	$(VENV_DIR)/bin/flake8 $(SRC_DIR) sample-app/
 test: venv
 	$(VENV_DIR)/bin/pytest
+run: build venv
+	$(PYTHON) ${SRC_DIR}/engine.py sample-app/.ci-pipeline.yaml
 clean:
-	rm -rf __pycache__ .pytest_cache *.pyc
+	@echo "Cleaning build artifacts and python caches..."
+
 	rm -rf $(BIN_DIR)/*
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null ||true
+	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+
+	@echo "Workspace is clean"
+clean-docker:
+	./scripts/cleanup.sh
+clean-all: clean clean-docker
+	@echo "Removing virtual environment (.venv)..."
+	rm -rf $(VENV_DIR)
+	@echo "Deep clean completed!"
+
+	
+
+

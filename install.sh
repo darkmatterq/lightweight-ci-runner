@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail 
-for tool in docker python3 pip g++ make
+for tool in docker python3 g++ make
 do
     if ! command -v "$tool" >/dev/null 2>&1
     then
@@ -29,7 +29,7 @@ then
 fi
     PROJECT_DIR=$(pwd)
     CURRENT_USER=$(whoami)
-    PYTHON_PATH=$(which python3)
+    PYTHON_PATH="${PROJECT_DIR}/.venv/bin/python3"
     sed -e "s|{{PROJECT_DIR}}|${PROJECT_DIR}|g"\
         -e "s|{{USER}}|${CURRENT_USER}|g"\
         -e "s|{{PYTHON_PATH}}|${PYTHON_PATH}|g"\

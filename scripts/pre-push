@@ -1,13 +1,25 @@
 #!/bin/bash
-set -euo pipefail
+set -euo pipefail 
 echo "[GITOPS] Running local CI pipeline before push... "
-if python3 src/engine.py sample-app/.ci-pipeline.yaml
+
+PYTHON_BIN="python3"
+if [ -f ".venv/bin/python3" ]
 then
-    echo "Pipeline passed! Proceeding with git push."
+    PYTHON_BIN=".venv/bin/python3"
+fi
+
+if ${PYTHON_BIN} src/engine.py sample-app/.ci-pipeline.yaml
+then
+    echo "Pipeline passed"
+    echo "[GITOPS] Auto-deploying updated container..."
+    ./scripts/deploy.sh
+    ./scripts/cleanup.sh
+    echo "All systems operational! Proceeding with git push."
     exit 0
 else 
     echo "Pipeline failed! Push aborted.Please fix errors before pushing"
     exit 1
 fi
+
 
 
