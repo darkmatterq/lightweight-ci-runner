@@ -9,7 +9,7 @@ def estimate_pi_monte_carlo(num_samples=1000000):
     for _ in range(num_samples):
         x = random.random()
         y = random.random()
-        if x**2 + y**2 <=1.0 :
+        if x**2 + y**2 <= 1.0:
             inside_circle += 1
     return (4.0 * inside_circle) / num_samples
 
