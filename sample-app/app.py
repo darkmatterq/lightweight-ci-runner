@@ -1,4 +1,17 @@
 import re
+import random
+
+
+def estimate_pi_monte_carlo(num_samples=1000000):
+    if num_samples <= 0:
+        raise ValueError("num_samples is unvalid")
+    inside_circle = 0
+    for _ in range(num_samples):
+        x = random.random()
+        y = random.random()
+        if x**2 + y**2 <=1.0 :
+            inside_circle += 1
+    return (4.0 * inside_circle) / num_samples
 
 
 def is_even(num):
