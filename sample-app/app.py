@@ -4,7 +4,7 @@ import random
 
 def estimate_pi_monte_carlo(num_samples=1000000):
     if num_samples <= 0:
-        raise ValueError("num_samples is unvalid")
+        raise ValueError("num_samples is invalid")
     inside_circle = 0
     for _ in range(num_samples):
         x = random.random()
