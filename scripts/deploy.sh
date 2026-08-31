@@ -2,11 +2,10 @@
 set -euo pipefail
 APP_NAME="sample-app-live"
 IMAGE_NAME="sample-app:latest"
-if [ "$(docker ps -q -f name=^/${APP_NAME}$)" ]
+if [ "$(docker ps -a -q -f name=^/${APP_NAME}$)" ]
 then
     echo "Stopping existing container: ${APP_NAME}...."
-    docker stop ${APP_NAME}
-    docker rm ${APP_NAME}
+    docker rm -f ${APP_NAME} >/dev/null 2>&1 || true
 fi
 echo " Starting new container: ${APP_NAME}"
 docker run -d \
