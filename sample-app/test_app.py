@@ -28,7 +28,7 @@ def test_format_email_happy_case():
 
 def test_estimate_pi_monte_carlo_happy_case():
     """Test range of π with lagre positive numbers"""
-    assert 3.10 <= estimate_pi_monte_carlo(100000) <= 3.18
+    assert 3.10 <= estimate_pi_monte_carlo(10000000) <= 3.18
     assert 3.13 <= estimate_pi_monte_carlo(3140000) <= 3.15
 # --- 2. EDGE CASES & ERROR HANDLING
 
