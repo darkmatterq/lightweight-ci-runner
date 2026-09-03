@@ -10,6 +10,7 @@ fi
 echo " Starting new container: ${APP_NAME}"
 docker run -d \
     --name ${APP_NAME} \
+    -p 8080:8080 \
     --restart unless-stopped \
     ${IMAGE_NAME}
 sleep 2

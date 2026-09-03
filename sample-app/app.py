@@ -1,6 +1,5 @@
 import json
 import random
-import re
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -30,33 +29,6 @@ def stress_memory(mb=50):
     time.sleep(1.0)
     del data
     return mb
-
-
-def is_even(num):
-    if num % 2 == 0:
-        return f"'{num}' is even"
-    return f"'{num}' is odd"
-
-
-def is_prime(num):
-    if num <= 1:
-        return False
-    count = 0
-    point_end = int(num ** 0.5) + 1
-    for i in range(2, point_end):
-        if num % i == 0:
-            count += 1
-        if count > 0:
-            return False
-    return True
-
-
-def format_email(email):
-    pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-
-    if re.match(pattern, email):
-        return True
-    return False
 
 
 class ChaosProbeHandler(BaseHTTPRequestHandler):
