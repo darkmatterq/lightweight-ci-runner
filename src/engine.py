@@ -89,8 +89,9 @@ class CIRunner:
     def run_pipeline(self):
         config = parse_pipeline_config(self.config_path)
         print(f"Running Pipeline:{config['name']}")
-        time_stage = []
-        ls_status = []
+        stage_status = {}
+        stage_duration = {}
+        pipeline_success = True
         for stage_name in config['stages']:
             start_time = time.perf_counter()
             print(
@@ -98,28 +99,36 @@ class CIRunner:
                 "====================="
             )
             success = self.run_stage(stage_name, config[stage_name])
-            ls_status.append(success)
+            stage_status[stage_name] = "PASSED"
             if not success:
                 print(f"\n Pipeline FAILED at stage [{stage_name}]!")
-                return False
+                stage_status[stage_name] = "FAILED"
+                pipeline_success = False
+                end_time = time.perf_counter()
+                stage_duration[stage_name] = end_time-start_time
+                break
+            else:
+                stage_status[stage_name] = "PASSED"
 
             print(f"Stage[{stage_name}] PASSED.")
             end_time = time.perf_counter()
-            time_stage.append(end_time-start_time)
-        print("====================== PIPELINE SUMMARY ======================")
-        for index, duration in enumerate(time_stage):
-            stage = config['stages'][index]
-            status = "PASSED"
-            if ls_status[index] == 0:
-                status = "FAILED"
-            print(
-                f"Stage: {stage}"
-                f" | Status:{status}"
-                f" | Duration: {round(duration, 2)}s"
-            )
 
-        print("\n ALL STAGES PASSED! Pipeline completed successfully.")
-        return True
+            stage_duration[stage_name] = end_time-start_time
+        print("====================== PIPELINE SUMMARY ======================")
+        for stage_name in config['stages']:
+            if stage_name not in stage_status:
+                stage_status[stage_name] = "SKIPPED"
+                stage_duration[stage_name] = 0.0
+            print(
+                f"Stage: {stage_name:<8}"
+                f" | Status:{stage_status[stage_name]:<8}"
+                f" | Duration: {round(stage_duration[stage_name], 2)}s"
+            )
+        if pipeline_success:
+            print("\n ALL STAGES PASSED! Pipeline completed successfully.")
+            return True
+        print("\n Pipeline FAILED! ")
+        return False
 
 
 if __name__ == "__main__":
