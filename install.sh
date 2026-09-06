@@ -12,7 +12,7 @@ do
 done
 if ! docker info >/dev/null 2>&1
 then 
-    echo "Docker error or not turn"
+    echo "Error: Docker daemon is not running. Please start Docker service."
 fi
 make venv
 make install-deps

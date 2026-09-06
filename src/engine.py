@@ -3,6 +3,7 @@ import os
 import sys
 import docker
 import subprocess
+import time
 
 
 class CIRunner:
@@ -38,14 +39,21 @@ class CIRunner:
             print(f"Pulling image: {stage_config['image']}...")
             self.client.images.pull(stage_config['image'])
             print(f"Starting container for stage[{stage_name}]...")
-            container = self.client.containers.create(
-                image=stage_config['image'],
-                command=entry_command,
-                working_dir='/workspace',
-                volumes=volumes,
-                network_mode='host',
-                detach=True
-            )
+
+            container_kwargs = {
+                'image': stage_config['image'],
+                'command': entry_command,
+                'working_dir': '/workspace',
+                'volumes': volumes,
+                'network_mode': 'host',
+                'detach': True
+            }
+            if 'memory' in stage_config:
+                container_kwargs['mem_limit'] = stage_config['memory']
+            if 'cpus' in stage_config:
+                container_kwargs['nano_cpus'] = int(
+                    float(stage_config['cpus'])*1e9)
+            container = self.client.containers.create(**container_kwargs)
             container.start()
             monitor_bin = os.path.join(self.workspace_dir, "bin", "ci-monitor")
             monitor_proc = None
@@ -81,17 +89,35 @@ class CIRunner:
     def run_pipeline(self):
         config = parse_pipeline_config(self.config_path)
         print(f"Running Pipeline:{config['name']}")
+        time_stage = []
+        ls_status = []
         for stage_name in config['stages']:
+            start_time = time.perf_counter()
             print(
                 f"\n==================[STAGE:{stage_name}]"
                 "====================="
             )
             success = self.run_stage(stage_name, config[stage_name])
+            ls_status.append(success)
             if not success:
                 print(f"\n Pipeline FAILED at stage [{stage_name}]!")
                 return False
 
             print(f"Stage[{stage_name}] PASSED.")
+            end_time = time.perf_counter()
+            time_stage.append(end_time-start_time)
+        print("====================== PIPELINE SUMMARY ======================")
+        for index, duration in enumerate(time_stage):
+            stage = config['stages'][index]
+            status = "PASSED"
+            if ls_status[index] == 0:
+                status = "FAILED"
+            print(
+                f"Stage: {stage}"
+                f" | Status:{status}"
+                f" | Duration: {round(duration, 2)}s"
+            )
+
         print("\n ALL STAGES PASSED! Pipeline completed successfully.")
         return True
 

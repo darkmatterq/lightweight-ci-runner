@@ -16,6 +16,8 @@ test:
   stage: test
   image: python:3.12-slim
   timeout: 60
+  memory: 128m
+  cpus: 1.0
   commands:
     - pip install pytest
     - pytest -o cache_dir=/tmp/.pytest_cache sample-app/test_app.py
