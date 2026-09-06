@@ -16,7 +16,7 @@ docker run -d \
     --restart unless-stopped \
     ${IMAGE_NAME}
 sleep 2
-if curl -s -f http://localhost:8080/healthy >/dev/null 2>&1
+if curl -s -f http://localhost:8080/health >/dev/null 2>&1
 then
     echo "Deployment SUCCESSFUL! Container ${APP_NAME} is healthy and running."
     exit 0
