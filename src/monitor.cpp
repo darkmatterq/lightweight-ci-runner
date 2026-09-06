@@ -80,6 +80,9 @@ int main(int argc, char* argv[]){
     }
     uint64_t prev_cpu_usec = get_cpu_usec(cgroup_path);
     auto prev_time =std::chrono::steady_clock::now();
+    uint64_t max_cpu_usec = 0;
+    double max_ram = 0;
+    auto start_time = prev_time;
     while(keep_running)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
@@ -87,6 +90,10 @@ int main(int argc, char* argv[]){
         if(ram_mb<0){
             std::cout<<"\n"<<COLOR_CYAN<< "[CI-MONITOR]"<< COLOR_RESET<<"Container finished. Stopping monitor.\n";
             break;
+        }
+        if ( max_ram < ram_mb)
+        {
+            max_ram=ram_mb;
         }
         uint64_t curr_cpu_usec= get_cpu_usec(cgroup_path);
         auto curr_time=std::chrono::steady_clock::now();
@@ -96,6 +103,10 @@ int main(int argc, char* argv[]){
         if (delta_time_usec>0 && delta_cpu_usec>=0){
             cpu_percent=(static_cast<double>(delta_cpu_usec)/delta_time_usec)*100.0;
         }
+        if ( max_cpu_usec < cpu_percent)
+        {
+            max_cpu_usec = cpu_percent;
+        }
         prev_cpu_usec=curr_cpu_usec;
         prev_time=curr_time;
         std::string cpu_color= get_cpu_color(cpu_percent);
@@ -103,6 +114,13 @@ int main(int argc, char* argv[]){
         << "RAM: "<< COLOR_BOLD << ram_mb <<" MB"<< COLOR_RESET
         << " | CPU: "<< cpu_color<< cpu_percent << "%"<< COLOR_RESET<<"\n";
 }
+    auto last_time=std::chrono::steady_clock::now();
+    auto duration= last_time-start_time;
+    auto duration_in_sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    std::cout<<"[CI-MONITOR SUMMARY]\n";
+    std::cout<<"Peak CPU Usage : "<<max_cpu_usec<<"\n";
+    std::cout<<"Peak RAM Usage : "<<max_ram<<"\n";
+    std::cout << "Duration       : " << duration_in_sec.count() << " seconds\n";
     std::cout<< "\n Monitor stopped cleanly.\n";
     return 0;
 }

@@ -11,10 +11,12 @@ echo " Starting new container: ${APP_NAME}"
 docker run -d \
     --name ${APP_NAME} \
     -p 8080:8080 \
+    --memory="128m" \
+    --cpus="1.0" \
     --restart unless-stopped \
     ${IMAGE_NAME}
 sleep 2
-if [ "$(docker inspect -f '{{.State.Running}}' "${APP_NAME}")" = "true" ]
+if curl -s -f http://localhost:8080/healthy >/dev/null 2>&1
 then
     echo "Deployment SUCCESSFUL! Container ${APP_NAME} is healthy and running."
     exit 0
