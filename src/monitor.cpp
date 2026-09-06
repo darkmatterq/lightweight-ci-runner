@@ -120,7 +120,7 @@ int main(int argc, char* argv[]){
     std::cout<<"[CI-MONITOR SUMMARY]\n";
     std::cout<<"Peak CPU Usage : "<<max_cpu_usec<<"\n";
     std::cout<<"Peak RAM Usage : "<<max_ram<<"\n";
-    std::cout << "Duration       : " << duration_in_sec.count() << " seconds\n";
+    std::cout << "Duration     : " << duration_in_sec.count() << " seconds\n";
     std::cout<< "\n Monitor stopped cleanly.\n";
     return 0;
 }
