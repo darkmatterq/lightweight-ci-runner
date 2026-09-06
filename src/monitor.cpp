@@ -23,6 +23,21 @@ std::string get_cpu_color(double cpu_percent){
 
 std::string find_cgroup_path(const std::string& container_id){
     std::string directory_main="/sys/fs/cgroup/system.slice/docker-"+container_id+".scope";
+    if (!std::filesystem::exists(directory_main))
+    {   std::string pdir="/sys/fs/cgroup/system.slice";
+        if(!std::filesystem::exists(pdir)){
+            std::cerr <<"Cannot find cgroup directory for container: "<< container_id <<"\n";
+            return "";
+        }
+        std::string directory="docker-"+container_id;
+        for (const auto& entry: std::filesystem::directory_iterator(pdir)){
+            std::string sample=entry.path().filename().string();
+            if (sample.find(directory)==0)
+            {
+                return entry.path().string();
+            }
+        }
+    }
     return directory_main;
 }
 double get_memory_usage_mb(const std::string& cgroup_path){
@@ -74,7 +89,7 @@ int main(int argc, char* argv[]){
     std::signal(SIGINT, handle_signal);
     std:: signal(SIGTERM, handle_signal);
     std::string cgroup_path=find_cgroup_path(argv[1]);
-    if(cgroup_path.empty()||!std::filesystem::exists(cgroup_path)){
+    if(cgroup_path.empty()){
         std::cerr <<"Cannot find cgroup directory for container: "<< container_id <<"\n";
         return 1;
     }
