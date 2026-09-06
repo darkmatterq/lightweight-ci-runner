@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
     }
     uint64_t prev_cpu_usec = get_cpu_usec(cgroup_path);
     auto prev_time =std::chrono::steady_clock::now();
-    uint64_t max_cpu_usec = 0;
+    double max_cpu_usec = 0;
     double max_ram = 0;
     auto start_time = prev_time;
     while(keep_running)
@@ -117,10 +117,13 @@ int main(int argc, char* argv[]){
     auto last_time=std::chrono::steady_clock::now();
     auto duration= last_time-start_time;
     auto duration_in_sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
-    std::cout<<"[CI-MONITOR SUMMARY]\n";
-    std::cout<<"Peak CPU Usage : "<<max_cpu_usec<<"\n";
-    std::cout<<"Peak RAM Usage : "<<max_ram<<"\n";
-    std::cout << "Duration     : " << duration_in_sec.count() << " seconds\n";
+    std::cout<<"----------------------------------------------------------------\n";
+    std::cout<<COLOR_CYAN<<" [CI-MONITOR SUMMARY]"<<COLOR_RESET<<"\n";
+    std::cout<<" Peak CPU Usage : "<<get_cpu_color(max_cpu_usec)<<max_cpu_usec
+    <<"%"<<COLOR_RESET<<"\n";
+    std::cout<<" Peak RAM Usage : "<<max_ram<<"MB\n";
+    std::cout<<" Duration       : "<< duration_in_sec.count() << " seconds\n";
+    std::cout<<"----------------------------------------------------------------";
     std::cout<< "\n Monitor stopped cleanly.\n";
     return 0;
 }
