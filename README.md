@@ -49,16 +49,19 @@ graph TD
 ### 2. Isolated Containerized Execution Engine (`src/engine.py`)
 * Parses declarative YAML pipeline definitions with strict schema validation.
 * Spawns ephemeral, clean-room Docker containers with volume workspace mounting (`/workspace`) and `network_mode='host'` for reliable package resolution.
-* Fail-fast execution with ANSI-colored streaming logs and automatic container teardown in `finally` blocks.
+* **Kernel Resource Enforcement:** Dynamically enforces stage-level resource quotas by mapping `memory` to Docker's `mem_limit` and `cpus` to `nano_cpus`.
+* **Execution Summary & Failure Handling:** Tracks wall-clock duration per stage with millisecond precision. If a stage fails, downstream stages are gracefully marked as `SKIPPED`, and a tabular summary is printed before exit.
 
 ### 3. Kernel Cgroups v2 Sidecar Profiler (`src/monitor.cpp`)
 * Direct inspection of Linux Cgroups v2 hierarchy (`/sys/fs/cgroup/system.slice/docker-<ID>.scope`).
+* **Short Container ID Prefix Matching:** Automatically resolves standard 12-character short container IDs (`docker ps -q`) into 64-character cgroup scopes by inspecting directory prefixes in `/sys/fs/cgroup/system.slice/`.
 * Reads `memory.current` and calculates differential CPU usage ($\Delta \text{CPU usec} / \Delta t$) with near-zero observer overhead ($0\%$ CPU).
-* Spawns asynchronously via `subprocess.Popen` and handles graceful termination (`SIGTERM`/`SIGINT`).
+* **Real-time ANSI Telemetry:** Dynamically color-codes CPU pressure (Green $<50\%$, Yellow $50-80\%$, Red $\ge 80\%$).
+* **Peak Resource Summary:** Computes and prints Peak RAM, Peak CPU load, and total container lifetime on exit.
 
 ### 4. Automated CD & Self-Healing Deployment (`scripts/deploy.sh`)
-* Performs atomic zero-downtime container rollout (`sample-app-live`).
-* Inspects container health status (`docker inspect --format '{{.State.Running}}'`) after startup.
+* Performs atomic zero-downtime container rollout (`sample-app-live`) with strict resource constraints (`--memory="128m" --cpus="1.0"`).
+* **HTTP Liveness Probe:** Verifies actual service readiness against the `http://localhost:8080/health` endpoint before reporting success.
 * Automated garbage collection (`scripts/cleanup.sh`) removing dangling images and cache artifacts.
 
 ### 5. Linux Daemonization (`systemd/lightweight-ci.service`)
@@ -109,7 +112,7 @@ lightweight-ci-runner/
 Clone the repository and run the setup script:
 
 ```bash
-git clone https://github.com/your-username/lightweight-ci-runner.git
+git clone https://github.com/darkmatterq/lightweight-ci-runner.git
 cd lightweight-ci-runner
 chmod +x install.sh
 ./install.sh
@@ -162,6 +165,8 @@ test:
   stage: test
   image: python:3.12-slim
   timeout: 60
+  memory: 128m
+  cpus: 1.0
   commands:
     - pip install pytest
     - pytest -o cache_dir=/tmp/.pytest_cache sample-app/test_app.py
@@ -178,17 +183,33 @@ build:
 
 ## 🖥️ Standalone C++ Cgroups v2 Profiler
 
-You can run the C++ monitor directly against any active Docker container:
+You can run the high-performance C++ monitor directly against any active Docker container using either its full 64-character hash or standard 12-character short ID:
 
 ```bash
 # 1. Start any test container
 docker run -d --name test-box alpine sh -c "while true; do :; done"
 
-# 2. Monitor resource usage in real-time (interval: 500ms)
-./bin/ci-monitor $(docker inspect --format '{{.Id}}' test-box) 500
+# 2. Monitor resource usage in real-time (accepts 12-char short ID or full ID)
+./bin/ci-monitor $(docker ps -q -f name=test-box) 500
 
 # 3. Teardown
 docker rm -f test-box
+```
+
+**Real-Time Output & Telemetry Summary:**
+```text
+Monitoring container: 7f8a9b1c2d3e
+Interval: 500ms
+[CI-MONITOR] RAM: 28.18 MB | CPU: 12.45%
+[CI-MONITOR] RAM: 56.55 MB | CPU: 99.95%
+[CI-MONITOR] Container finished. Stopping monitor.
+----------------------------------------------------------------
+ [CI-MONITOR SUMMARY]
+ Peak CPU Usage : 99.95%
+ Peak RAM Usage : 56.55MB
+ Duration       : 4 seconds
+----------------------------------------------------------------
+ Monitor stopped cleanly.
 ```
 
 ---
