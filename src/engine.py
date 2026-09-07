@@ -15,12 +15,12 @@ class CIRunner:
             self.client.ping()
         except Exception as e:
             print(
-                f"Error: Cannot connect to Docker Deamon.\
+                f"Error: Cannot connect to Docker Daemon.\
                       Is Docker running? \n{e}")
             sys.exit(1)
 
     def run_stage(self, stage_name, stage_config):
-        cmd_str = " && " .join(stage_config['commands'])
+        cmd_str = " && ".join(stage_config['commands'])
         entry_command = f"sh -c 'set -e && {cmd_str}'"
         volumes = {
             self.workspace_dir: {

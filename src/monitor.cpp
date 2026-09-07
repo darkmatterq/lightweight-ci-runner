@@ -75,8 +75,8 @@ void handle_signal(int /*signal*/){
 int main(int argc, char* argv[]){
     if(argc<2){
         std::cerr<<"You have filled it out incorrectly. Please fill it out again.\n";
-        std::cerr<<"Usage: ./bin/ci-monitor <container_id>\n";
-        std::cerr<<"Example: ./bin/ci-monitor 7f8a9b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90\n";
+        std::cerr<<"Usage: ./bin/ci-monitor <container_id> [interval_ms]\n";
+        std::cerr<<"Example: ./bin/ci-monitor $(docker ps -q) 500 \n";
         return 1;
     }
     std::string container_id= argv[1];
@@ -84,11 +84,11 @@ int main(int argc, char* argv[]){
     if(argc>=3){
         interval_ms=std::stoi(argv[2]);
     }
-    std:: cout<<"Monitoring container: "<< container_id<< 
+    std::cout<<"Monitoring container: "<< container_id<< 
     "\n";
-    std:: cout<<"Interval: "<< interval_ms << "ms\n";
+    std::cout<<"Interval: "<< interval_ms << "ms\n";
     std::signal(SIGINT, handle_signal);
-    std:: signal(SIGTERM, handle_signal);
+    std::signal(SIGTERM, handle_signal);
     std::string cgroup_path=find_cgroup_path(argv[1]);
     if(cgroup_path.empty()){
         std::cerr <<"Cannot find cgroup directory for container: "<< container_id <<"\n";

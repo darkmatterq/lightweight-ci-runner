@@ -16,7 +16,7 @@ def parse_pipeline_config(config_path):
     for stage_name in data["stages"]:
         if stage_name not in data:
             raise ValueError(f"Stage '{stage_name}'\
-                              is declared in 'stages'but not defined.")
+                              is declared in 'stages' but not defined.")
 
         stage_data = data[stage_name]
         if "image" not in stage_data:
