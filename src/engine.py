@@ -20,8 +20,6 @@ class CIRunner:
             sys.exit(1)
 
     def run_stage(self, stage_name, stage_config):
-        self.stage_name = stage_name
-        self.stage_config = stage_config
         cmd_str = " && " .join(stage_config['commands'])
         entry_command = f"sh -c 'set -e && {cmd_str}'"
         volumes = {
@@ -99,7 +97,6 @@ class CIRunner:
                 "====================="
             )
             success = self.run_stage(stage_name, config[stage_name])
-            stage_status[stage_name] = "PASSED"
             if not success:
                 print(f"\n Pipeline FAILED at stage [{stage_name}]!")
                 stage_status[stage_name] = "FAILED"

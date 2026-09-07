@@ -37,6 +37,7 @@ std::string find_cgroup_path(const std::string& container_id){
                 return entry.path().string();
             }
         }
+        directory_main="";
     }
     return directory_main;
 }
